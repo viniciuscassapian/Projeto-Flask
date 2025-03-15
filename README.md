@@ -1,11 +1,10 @@
 from flask import Flask, jsonify, request
-from data import professores, turmas, alunos
 
 app = Flask(__name__)
 
 professores = [
     {"id": 1, "nome": "Prof. João", "idade": 40, "materia": "Matematica", "observacoes": "Experiente"},
-    {"id": 1, "nome": "Prof. Maria", "idade": 35, "materia": "Historia", "observacoes": "Experiente em história antiga"},
+    {"id": 2, "nome": "Prof. Maria", "idade": 35, "materia": "Historia", "observacoes": "Experiente em história antiga"},
 ]
 
 turmas = [
@@ -28,11 +27,12 @@ def add_professor():
     novo_professor = request.json
     professores.append(novo_professor), 201
 # O PUT vai servir para atualizar um professor que já existe
-app.route('/professores/<int:id>', methods =['PUT'])
+@app.route('/professores/<int:id>', methods =['PUT'])
 def update_professor(id):
     for professor in professores:
-        dados = request.json
-        professor.update(dados)
+        if professor['id'] == id:
+            dados = request.json
+            professor.update(dados)
         return jsonify(professor), 200
     return jsonify({"erro": "Professor não encontrado"}), 404
 # O DELETE vai servir para deletar/remover um professor
@@ -95,7 +95,7 @@ def update_aluno(id):
 app.route('/alunos/<int:id>', methods = ['DELETE'])
 def deletar_aluno(id):
     for aluno in alunos:
-        if alunos['id'] == id:
+        if aluno['id'] == id:
             alunos.remove(aluno)
             return jsonify({'mensagem': "Aluno removido"}), 200
         return jsonify({"erro": "Aluno não encontrado"})
