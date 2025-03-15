@@ -71,3 +71,31 @@ def deletar_turmas(id):
             turmas.remove(turma)
             return jsonify({"mensagem": "Turma removida"}), 200
         return jsonify({"erro": "Turma não encontrada"}), 404
+# Esse é o CRUD dos alunos
+# #Esse é o GET dos alunos
+app.route('/alunos', methods = ['GET'])
+def get_alunos():
+    return jsonify(alunos), 200
+# Esse é o POST dos alunos
+app.route('/alunos', methods = ['POST'])
+def add_aluno():
+    novo_aluno = request.json
+    alunos.append(novo_aluno)
+    return jsonify(alunos), 201
+# Esse é PUT dos alunos
+app.route('/alunos/<int:id>', methods = ['PUT'])
+def update_aluno(id):
+    for aluno in alunos:
+        if aluno ['id'] == id:
+            dados = request.json
+            aluno.update(dados)
+            return jsonify(aluno), 200
+        return jsonify({"erro": "Aluno não encontrado"}), 404
+# Esse é o DELETE dos alunos
+app.route('/alunos/<int:id>', methods = ['DELETE'])
+def deletar_aluno(id):
+    for aluno in alunos:
+        if alunos['id'] == id:
+            alunos.remove(aluno)
+            return jsonify({'mensagem': "Aluno removido"}), 200
+        return jsonify({"erro": "Aluno não encontrado"})
