@@ -1,31 +1,51 @@
-professores = [
-    {"id": 1, "nome": "Prof. João", "idade": 40, "materia": "Matematica", "observacoes": "Experiente"},
-    {"id": 2, "nome": "Prof. Maria", "idade": 35, "materia": "Historia", "observacoes": "Experiente em história antiga"},
-]
+from base_de_dados import db
+
+class Professor(db.Model):
+    __tablename__ = 'professores'
+
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(100), nullable=False)
+    idade = db.Column(db.Integer, nullable=False)
+    materia = db.Column(db.String(100), nullable=False)
+    observacoes = db.Column(db.Text)
+
+    def __repr__(self):
+        return f"<Professor {self.nome}>"
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "nome": self.nome,
+            "idade": self.idade,
+            "materia": self.materia,
+            "observacoes": self.observacoes
+        }
 
 def listar_professores():
-    return professores
+    return Professor.query.all() 
 
-def adicionar_professor(professor):
-    professores.append(professor)
-    return professor
+def adicionar_professor(professor_data):
+    professor = Professor(**professor_data)
+    db.session.add(professor)
+    db.session.commit()
+    return professor 
 
 def buscar_professor(id):
-    for p in professores:
-        if p['id'] == id:
-            return p
-    return None
+    return Professor.query.get(id) 
 
 def atualizar_professor(id, dados):
     professor = buscar_professor(id)
     if professor:
-        professor.update(dados)
-        return professor
+        for key, value in dados.items():
+            setattr(professor, key, value) 
+        db.session.commit()
+        return professor 
     return None
 
 def deletar_professor(id):
     professor = buscar_professor(id)
     if professor:
-        professores.remove(professor)
+        db.session.delete(professor)
+        db.session.commit()
         return True
     return False

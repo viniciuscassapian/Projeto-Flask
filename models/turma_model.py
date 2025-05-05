@@ -1,31 +1,41 @@
-turmas = [
-    {"id": 1, "descricao": "Turma 1A", "professor_id": 1, "ativo": True},
-    {"id": 2, "descricao": "Turma 2B", "professor_id": 2, "ativo": True}
-]
+from base_de_dados import db
+
+class Turma(db.Model):
+    __tablename__ = 'turmas'
+
+    id = db.Column(db.Integer, primary_key=True)
+    descricao = db.Column(db.String(100), nullable=False)
+    professor_id = db.Column(db.Integer, db.ForeignKey('professores.id'), nullable=False)
+    ativo = db.Column(db.Boolean, default=True)
+
+    def __repr__(self):
+        return f"<Turma {self.descricao}>"
 
 def listar_turmas():
-    return turmas
+    return Turma.query.all()
 
-def adicionar_turma(turma):
-    turmas.append(turma)
+def adicionar_turma(turma_data):
+    turma = Turma(**turma_data)
+    db.session.add(turma)
+    db.session.commit()
     return turma
 
 def buscar_turma(id):
-    for t in turmas:
-        if t['id'] == id:
-            return t
-    return None
+    return Turma.query.get(id)
 
 def atualizar_turma(id, dados):
     turma = buscar_turma(id)
     if turma:
-        turma.update(dados)
+        for key, value in dados.items():
+            setattr(turma, key, value)
+        db.session.commit()
         return turma
     return None
 
 def deletar_turma(id):
     turma = buscar_turma(id)
     if turma:
-        turmas.remove(turma)
+        db.session.delete(turma)
+        db.session.commit()
         return True
     return False
