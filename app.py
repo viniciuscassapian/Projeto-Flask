@@ -7,7 +7,7 @@ from models.aluno_model import Aluno
 from controllers.professor_controller import professor_bp
 from controllers.turma_controller import turma_bp
 from controllers.aluno_controller import aluno_bp
-from config import DEBUG
+from config import app, db
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
@@ -33,4 +33,4 @@ def index():
     return 'API Flask funcionando! Acesse /apidocs para ver a documentação Swagger.'
 
 if __name__ == "__main__":
-    app.run(debug=True,host= '0.0.0.0',port=5000)
+    app.run(host=app.config["HOST"], port=app.config['PORT'], debug=app.config['DEBUG'])
