@@ -1,14 +1,15 @@
-import os
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS
+import os
 
 app = Flask(__name__)
-CORS(app)
 app.config['HOST'] = '0.0.0.0'
 app.config['PORT']=5000
 app.config['DEBUG'] = True
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy(app)
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+INSTANCE_DIR = os.path.join(BASE_DIR, 'instance')
+os.makedirs(INSTANCE_DIR, exist_ok=True)
+
+DATABASE_URI = f"sqlite:///{os.path.join(INSTANCE_DIR, 'app.db')}"
