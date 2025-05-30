@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from models.turma_model import listar_turmas, adicionar_turma, atualizar_turma, deletar_turma
+from models.turma_model import listar_turmas, buscar_turma, adicionar_turma, atualizar_turma, deletar_turma
 
 turma_bp = Blueprint("turma_bp", __name__)
 
@@ -7,90 +7,44 @@ turma_bp = Blueprint("turma_bp", __name__)
 def get_turmas():
     """
     Lista todas as turmas
-    ---
-    responses:
-      200:
-        description: Lista de turmas retornada com sucesso
     """
-    return jsonify(listar_turmas()), 200
+    return jsonify([turma.to_dict() for turma in listar_turmas()]), 200
+
+@turma_bp.route("/turmas/<int:id>", methods=["GET"])
+def get_turma_por_id(id):
+    turma = buscar_turma(id)
+    if turma:
+        return jsonify(turma.to_dict()), 200
+    return jsonify({"erro": "Turma não encontrada"}), 404
 
 @turma_bp.route("/turmas", methods=["POST"])
 def add_turma():
-    """
-    Adiciona uma nova turma
-    ---
-    parameters:
-      - name: body
-        in: body
-        required: true
-        schema:
-          type: object
-          properties:
-            descricao:
-              type: string
-            professor_id:
-              type: integer
-            ativo:
-              type: boolean
-    responses:
-      201:
-        description: Turma adicionada com sucesso
-      400:
-        description: Dados inválidos para turma
-    """
     nova_turma = request.json
-    return jsonify(adicionar_turma(nova_turma)), 201
+    
+    if 'ativo' in nova_turma:
+        ativo_val = nova_turma['ativo']
+        if isinstance(ativo_val, str):
+            nova_turma['ativo'] = ativo_val.lower() in ['sim', 'true', '1']
+
+    turma_obj = adicionar_turma(nova_turma)
+    return jsonify(turma_obj.to_dict()), 201
 
 @turma_bp.route("/turmas/<int:id>", methods=["PUT"])
 def put_turma(id):
-    """
-    Atualiza uma turma existente
-    ---
-    parameters:
-      - name: id
-        in: path
-        type: integer
-        required: true
-      - name: body
-        in: body
-        required: true
-        schema:
-          type: object
-          properties:
-            descricao:
-              type: string
-            professor_id:
-              type: integer
-            ativo:
-              type: boolean
-    responses:
-      200:
-        description: Turma atualizada com sucesso
-      404:
-        description: Turma não encontrada
-    """
     dados = request.json
+
+    if 'ativo' in dados:
+        ativo_val = dados['ativo']
+        if isinstance(ativo_val, str):
+            dados['ativo'] = ativo_val.lower() in ['sim', 'true', '1']
+
     atualizado = atualizar_turma(id, dados)
     if atualizado:
-        return jsonify(atualizado), 200
+        return jsonify(atualizado.to_dict()), 200
     return jsonify({"erro": "Turma não encontrada"}), 404
 
 @turma_bp.route("/turmas/<int:id>", methods=["DELETE"])
 def delete_turma(id):
-    """
-    Deleta uma turma
-    ---
-    parameters:
-      - name: id
-        in: path
-        type: integer
-        required: true
-    responses:
-      200:
-        description: Turma removida com sucesso
-      404:
-        description: Turma não encontrada
-    """
     if deletar_turma(id):
         return jsonify({"mensagem": "Turma removida"}), 200
     return jsonify({"erro": "Turma não encontrada"}), 404
