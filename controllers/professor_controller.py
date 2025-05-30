@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from models.professor_model import listar_professores, adicionar_professor, atualizar_professor, deletar_professor
+from models.professor_model import listar_professores, adicionar_professor, atualizar_professor, deletar_professor, buscar_professor
 
 professor_bp = Blueprint("professor_bp", __name__)
 
@@ -12,7 +12,16 @@ def get_professores():
       200:
         description: Lista de professores retornada com sucesso
     """
-    return jsonify(listar_professores()), 200
+    professores = listar_professores()
+    return jsonify([p.to_dict() for p in professores]), 200
+
+@professor_bp.route("/professores/<int:id>", methods=["GET"])
+def get_professor_por_id(id):
+    professor = buscar_professor(id)
+    if professor:
+        return jsonify(professor.to_dict()), 200
+    return jsonify({"erro": "Professor não encontrado"}), 404
+
 
 @professor_bp.route("/professores", methods=["POST"])
 def add_professor():
@@ -41,8 +50,8 @@ def add_professor():
         description: Dados inválidos
     """
     novo = request.json
-    return jsonify(adicionar_professor(novo)), 201
-
+    professor = adicionar_professor(novo)
+    return jsonify(professor.to_dict()), 201
 @professor_bp.route("/professores/<int:id>", methods=["PUT"])
 def put_professor(id):
     """
@@ -76,7 +85,7 @@ def put_professor(id):
     dados = request.json
     atualizado = atualizar_professor(id, dados)
     if atualizado:
-        return jsonify(atualizado), 200
+        return jsonify(atualizado.to_dict()), 200
     return jsonify({"erro": "Professor não encontrado"}), 404
 
 @professor_bp.route("/professores/<int:id>", methods=["DELETE"])
