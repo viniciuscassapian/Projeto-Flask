@@ -10,6 +10,14 @@ class Turma(db.Model):
 
     def __repr__(self):
         return f"<Turma {self.descricao}>"
+    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "descricao": self.descricao,
+            "professor_id": self.professor_id,
+            "ativo": self.ativo
+        }
 
 def listar_turmas():
     return Turma.query.all()
