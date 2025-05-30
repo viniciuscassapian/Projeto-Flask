@@ -1,17 +1,16 @@
 from flask import Flask
 from flasgger import Swagger
-from base_de_dados import db
-from models.professor_model import Professor
-from models.turma_model import Turma
-from models.aluno_model import Aluno
 from controllers.professor_controller import professor_bp
 from controllers.turma_controller import turma_bp
 from controllers.aluno_controller import aluno_bp
-from config import app, db
+from base_de_dados import db
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['HOST'] = '0.0.0.0'
+app.config['PORT']=5000
+app.config['DEBUG'] = True
 
 app.config['SWAGGER'] = {
     'title': 'API de Gestão Escolar',
